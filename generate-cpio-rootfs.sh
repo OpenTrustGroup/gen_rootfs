@@ -7,14 +7,23 @@
 # All credits to Linus Walleij that wrote this initially.
 
 # exit as soon as an error is encoutered
-set -e
+set -e; [[ "${TRACE}" ]] && set -x
 
 echo "Generator for a simple initramfs root filesystem for some ARM targets"
+
 CURDIR="$(dirname "$(readlink -f "$0")")"
+if [ ! -z ${ROOTFS_BUILDROOT} ];then
+  cp ${CURDIR}/filelist.txt ${ROOTFS_BUILDROOT}/
+  cp -r ${CURDIR}/etc ${ROOTFS_BUILDROOT}/
+
+  CURDIR="${ROOTFS_BUILDROOT}"
+  cd ${CURDIR}
+fi
+
 STAGEDIR=${CURDIR}/stage
 BUILDDIR=${CURDIR}/build
 OUTFILE=${CURDIR}/rootfs-$1.cpio
-BUSYBOXDIR=${CURDIR}/../busybox
+BUSYBOXDIR="${BUSYBOX_PATH:-${CURDIR}/../busybox}"
 
 if [ "$2" = "clean" -o "$2" = "distclean" ]; then
     echo "Cleaning"
@@ -51,9 +60,9 @@ function clone_dir()
     cd ${CURDIR}
 }
 
-CC_PREFIX=`${CROSS_COMPILE}gcc -print-multiarch`
+CC_PREFIX=`${CROSS_COMPILE}gcc -dumpmachine`
 case "${CC_PREFIX}" in
-aarch64-linux-gnu)
+aarch64-linux-gnu | aarch64-elf)
     LIBCBASE=$(dirname $(${CROSS_COMPILE}gcc -print-file-name=ld-linux-aarch64.so.1))/..
     export ARCH=arm64
     ;;
@@ -157,8 +166,8 @@ echo $_NPROCESSORS_ONLN
 
 if [ "$2" != "nocpio" ]; then
     echo -n "gen_init_cpio ... "
-    which gen_init_cpio > /dev/null ; if [ ! $? -eq 0 ] ; then
-        echo "ERROR: gen_init_cpio not in PATH=$PATH!"
+    if [ -z "$(which gen_init_cpio)" ] ; then
+        echo "ERROR: gen_init_cpio not in PATH=$PATH"
         echo "Copy this binary from the Linux build tree."
         echo "Or set your PATH into the Linux kernel tree, I don't care..."
         echo "ABORTING."
@@ -200,8 +209,8 @@ if [ ! -e ${BUILDDIR}/.config ]; then
   sed -i -e "s/CONFIG_FEATURE_EJECT_SCSI=y/\# CONFIG_FEATURE_EJECT_SCSI is not set/g" ${BUILDDIR}/.config
   #make O=${BUILDDIR} menuconfig
 fi
-make -j${_NPROCESSORS_ONLN} O=${BUILDDIR}
-make O=${BUILDDIR} install
+make -j${_NPROCESSORS_ONLN} O=${BUILDDIR} V=${VERBOSE}
+make O=${BUILDDIR} V=${VERBOSE} install
 
 # copy udhcp simple script to the stage
 cp ${BUSYBOXDIR}/examples/udhcp/simple.script ${STAGEDIR}/etc/udhcp/
