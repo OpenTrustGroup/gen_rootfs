@@ -62,3 +62,32 @@ dir /var/run 755 0 0
 dir /var/lock 755 0 0
 dir /var/tmp 755 0 0
 dir /lib 755 0 0
+
+# Dropbear SSH Server
+file /etc/init.d/dropbear etc/init.d/dropbear 755 0 0
+slink /etc/rc.d/S10_dropbear /etc/init.d/dropbear 755 0 0
+dir /root 755 0 0
+dir /etc/dropbear 755 0 0
+file /etc/dropbear/dropbear_dss_host_key etc/dropbear/dropbear_dss_host_key 600 0 0
+file /etc/dropbear/dropbear_ecdsa_host_key etc/dropbear/dropbear_ecdsa_host_key 600 0 0
+file /etc/dropbear/dropbear_rsa_host_key etc/dropbear/dropbear_rsa_host_key 600 0 0
+
+# VirtFS 9p, must start before secure_storage.
+file /etc/init.d/hostshare etc/init.d/hostshare 755 0 0
+slink /etc/rc.d/S08_hostshare /etc/init.d/hostshare 755 0 0
+
+# Send license to HEE.
+file /etc/init.d/ta-license etc/init.d/ta-license 755 0 0
+slink /etc/rc.d/S01_ta-license /etc/init.d/ta-license 755 0 0
+
+# TUI service, receive start/stop activity message from HEE/TEE.
+file /etc/init.d/tui_service etc/init.d/tui_service 755 0 0
+slink /etc/rc.d/S10_tui_service /etc/init.d/tui_service 755 0 0
+
+# Attestation daemon
+file /etc/init.d/attestd etc/init.d/attestd 755 0 0
+slink /etc/rc.d/S20_attestd /etc/init.d/attestd 755 0 0
+
+# Rpc daemon
+file /etc/init.d/rpcd etc/init.d/rpcd 755 0 0
+slink /etc/rc.d/S20_rpcd /etc/init.d/rpcd 755 0 0

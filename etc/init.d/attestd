@@ -1,0 +1,30 @@
+#!/bin/sh
+# Copyright 2020 GoldenRiver Technology Co., Ltd. All rights reserved.
+#
+# /etc/init.d/nbl_attestd
+#
+# start nbl_attestd
+
+TL_PID=`pidof nbl_attestd`
+case "$1" in
+    start)
+        if [ -n "$TL_PID" ]; then
+            echo "nbl_attestd has been started."
+            exit 0
+        fi
+        echo "start nbl_attestd"
+        nbl_attestd&
+        ;;
+    stop)
+        if [ -z "$TL_PID" ]; then
+            echo "nbl_attestd has NOT been started."
+            exit 0
+        fi
+        echo "stop nbl_attestd"
+        pidof nbl_attestd | xargs kill -9
+        rm -f /tmp/attestd_fifo
+        ;;
+    *)
+        echo "Unknown action \"$1\""
+        ;;
+esac

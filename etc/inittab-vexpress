@@ -7,3 +7,11 @@ ttyAMA0::askfirst:/bin/sh -sc ". /etc/profile"
 ::ctrlaltdel:/sbin/poweroff
 ::shutdown:/etc/init.d/rc.shutdown
 ::restart:/sbin/init
+
+# GRT: start storageproxyd and keep it alive even if it exits.
+# - And notice: this service must start after "S08_hostshare" if enable host shared folder.
+:2345:respawn:/bin/start_tee_proxyd
+:2345:respawn:/bin/start_hyp_proxyd
+# GRT: start nbl_daemon as NSS server.
+# In deive, start only once.
+:2345:once:/bin/start_nbl_daemon

@@ -1,0 +1,32 @@
+#!/bin/sh
+# Copyright 2018 GoldenRiver Technology Co., Ltd. All rights reserved.
+#
+# /etc/init.d/nbl_tui_service
+#
+# start the nbl_tui_service daemon
+# - connects the "com.nbl.droid.activity.callback" in TEE or HEE.
+# - receives the start/stop activity from server.
+# - start_tui_service is shell script to start nbl_tui_service.
+
+TL_PID=`pidof nbl_tui_service`
+case "$1" in
+    start)
+        if [ -n "$TL_PID" ]; then
+            echo "nbl tui service has been started."
+            exit 0
+        fi
+        echo "start nbl tui service"
+        start_tui_service
+        ;;
+    stop)
+        if [ -z "$TL_PID" ]; then
+            echo "nbl tui service has NOT been started."
+            exit 0
+        fi
+        echo "stop nbl tui service"
+        pidof nbl_tui_service | xargs kill -9
+        ;;
+    *)
+        echo "Unknown action \"$1\""
+        ;;
+esac

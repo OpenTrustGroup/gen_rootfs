@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# /etc/init.d/hostshare
+#
+
+case "$1" in
+  start)
+  if [ -d /sys/bus/virtio/drivers/9pnet_virtio/virtio* ]; then
+    mkdir -p /hostshare
+    mount -t 9p -o trans=virtio,version=9p2000.L hostshare /hostshare
+    echo "Host share folder mounted at '/hostshare'."
+  else
+    echo "Host share folder not mounted."
+  fi
+  ;;
+  stop)
+  if [ -d /hostshare ]; then
+    umount /hostshare
+  fi
+  ;;
+esac

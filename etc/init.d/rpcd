@@ -1,0 +1,30 @@
+#!/bin/sh
+# Copyright 2020 GoldenRiver Technology Co., Ltd. All rights reserved.
+#
+# /etc/init.d/nbl_rpcd
+#
+# start nbl_rpcd
+
+TL_PID=`pidof nbl_rpcd`
+case "$1" in
+    start)
+        if [ -n "$TL_PID" ]; then
+            echo "nbl_rpcd has been started."
+            exit 0
+        fi
+        echo "start nbl_rpcd"
+        nbl_rpcd&
+        ;;
+    stop)
+        if [ -z "$TL_PID" ]; then
+            echo "nbl_rpcd has NOT been started."
+            exit 0
+        fi
+        echo "stop nbl_rpcd"
+        pidof nbl_rpcd | xargs kill -9
+        rm -f /tmp/rpcd_fifo
+        ;;
+    *)
+        echo "Unknown action \"$1\""
+        ;;
+esac

@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# /etc/init.d/ta_license
+#
+# Send a license to TEE for starting all service such as hwcrypto.
+
+case "$1" in
+    start)
+        echo "start sending license to TEE."
+        ta-license_test -l
+        ;;
+    stop)
+        ;;
+    *)
+        echo "Unknown action \"$1\""
+        ;;
+esac
