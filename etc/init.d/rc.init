@@ -20,14 +20,17 @@ echo "running rc.d services..."
 run-parts -a start /etc/rc.d
 echo -n "uptime idle: "; cat /proc/uptime
 
-mount /dev/vda /data -t ext4
+if [ -z "$INITTAB" ]; then
+    mount /dev/vda /data -t ext4
 
-echo "creating uos network tunnel..."
-nohup socat TCP-LISTEN:8022,fork,reuseaddr  TCP:192.168.2.2:22 > /dev/null 2>&1  &
-nohup socat TCP-LISTEN:8023,fork,reuseaddr  TCP:192.168.1.2:22 > /dev/null 2>&1  &
-nohup socat TCP-LISTEN:5201,fork,reuseaddr  TCP:192.168.1.2:5201 > /dev/null 2>&1  &
+    echo "creating uos network tunnel..."
+    nohup socat TCP-LISTEN:8022,fork,reuseaddr  TCP:192.168.2.2:22 > /dev/null 2>&1  &
+    nohup socat TCP-LISTEN:8023,fork,reuseaddr  TCP:192.168.1.2:22 > /dev/null 2>&1  &
+    nohup socat TCP-LISTEN:5201,fork,reuseaddr  TCP:192.168.1.2:5201 > /dev/null 2>&1  &
 
-# announce rproc remote ready
-echo 1 > /sys/devices/platform/b00000000.nebula_rproc_remote0/ready
+    # announce rproc remote ready
+    echo 1 > /sys/devices/platform/b00000000.nebula_rproc_remote0/ready
+    echo 1 > /sys/devices/platform/b00001000.nebula_rproc_remote1/ready
 
-/bin/rprocd &
+    /bin/rprocd &
+fi
