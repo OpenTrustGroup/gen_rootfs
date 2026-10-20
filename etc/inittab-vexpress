@@ -3,7 +3,9 @@
 #
 ::sysinit:/etc/init.d/rc.init
 # ttyAMA0 used by Versatile Express
-ttyAMA0::askfirst:/bin/sh -sc ". /etc/profile"
+#ttyAMA0::askfirst:/bin/sh -sc ". /etc/profile"
+# hvc0 is virtual console provided by hypervisor
+hvc0::askfirst:/bin/sh -sc ". /etc/profile"
 ::ctrlaltdel:/sbin/poweroff
 ::shutdown:/etc/init.d/rc.shutdown
 ::restart:/sbin/init

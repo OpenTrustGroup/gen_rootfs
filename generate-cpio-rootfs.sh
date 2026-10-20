@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Usage: generate_cpio_rootfs.sh <platform_name>
-#        generate_cpio_rootfs.sh <platform_name> clean
-#        generate_cpio_rootfs.sh <platform_name> nocpio
+# Usage: generate_cpio_rootfs.sh <tee os type> <platform_name>
+#        generate_cpio_rootfs.sh <tee os type> <platform_name> clean
+#        generate_cpio_rootfs.sh <tee os type> <platform_name> nocpio
 #
 # All credits to Linus Walleij that wrote this initially.
 
@@ -12,8 +12,19 @@ set -e; [[ "${TRACE}" ]] && set -x
 echo "Generator for a simple initramfs root filesystem for some ARM targets"
 
 CURDIR="$(dirname "$(readlink -f "$0")")"
+
+declare TBOX_INITTAB=etc/inittab-tbox
+declare INIT_WRAPPER=${CURDIR}/init
+if [[ "$1" == "none" ]]; then
+    declare FILELIST=${CURDIR}/filelist-notee.txt
+    declare VEXPRESS=etc/inittab-vexpress-notee
+else
+    declare FILELIST=${CURDIR}/filelist.txt
+    declare VEXPRESS=etc/inittab-vexpress
+fi
+
 if [ ! -z ${ROOTFS_BUILDROOT} ];then
-  cp ${CURDIR}/filelist.txt ${ROOTFS_BUILDROOT}/
+  cp ${FILELIST} ${ROOTFS_BUILDROOT}/filelist.txt
   cp -r ${CURDIR}/etc ${ROOTFS_BUILDROOT}/
 
   CURDIR="${ROOTFS_BUILDROOT}"
@@ -22,10 +33,10 @@ fi
 
 STAGEDIR=${CURDIR}/stage
 BUILDDIR=${CURDIR}/build
-OUTFILE=${CURDIR}/rootfs-$1.cpio
+OUTFILE=${CURDIR}/rootfs-$2.cpio
 BUSYBOXDIR="${BUSYBOX_PATH:-${CURDIR}/../busybox}"
 
-if [ "$2" = "clean" -o "$2" = "distclean" ]; then
+if [ "$3" = "clean" -o "$3" = "distclean" ]; then
     echo "Cleaning"
     rm -rf ${STAGEDIR} ${BUILDDIR}
     rm -f ${OUTFILE} ${CURDIR}/etc/hostname ${CURDIR}/etc/inittab
@@ -83,17 +94,20 @@ function generate_inittab()
 	cat $1 | awk '{while(match($0,"[$]{[^}]*}")) {var=substr($0,RSTART+2,RLENGTH -3);gsub("[$]{"var"}",ENVIRON[var])}}1'>$2
 }
 
-case $1 in
+case $2 in
     "vexpress")
         CFLAGS=${CFLAGS-"-Wno-strict-aliasing -Wno-unused-result -marm -mabi=aapcs-linux -mthumb -mthumb-interwork -mcpu=cortex-a15"}
-        cp etc/inittab-vexpress etc/inittab
+        cp ${VEXPRESS} etc/inittab
         echo "Vexpress" > etc/hostname
         ;;
 
     "fvp")
         echo "Building FVP root filesystem"
-        cp etc/inittab-vexpress etc/inittab
+        cp ${VEXPRESS} etc/inittab
+        cp ${TBOX_INITTAB} etc/inittab.tbox
+        cp ${INIT_WRAPPER} init
         echo "FVP" > etc/hostname
+        echo "tbox" > etc/hostname.tbox
         ;;
 
     "rpi3")
@@ -164,7 +178,7 @@ echo -n "Check # of CPUs ..."
 _NPROCESSORS_ONLN=`getconf _NPROCESSORS_ONLN`
 echo $_NPROCESSORS_ONLN
 
-if [ "$2" != "nocpio" ]; then
+if [ "$3" != "nocpio" ]; then
     echo -n "gen_init_cpio ... "
     if [ -z "$(which gen_init_cpio)" ] ; then
         echo "ERROR: gen_init_cpio not in PATH=$PATH"
@@ -306,7 +320,7 @@ done;
 
 diff filelist-final.txt filelist-tmp.txt >/dev/null 2>&1 || mv filelist-tmp.txt filelist-final.txt
 
-if [ "$2" != "nocpio" ]; then
+if [ "$3" != "nocpio" ]; then
     gen_init_cpio filelist-final.txt > ${OUTFILE}
     if [ -f ${OUTFILE} ] ; then
         echo "New rootfs ready in ${OUTFILE}"

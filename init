@@ -1,0 +1,11 @@
+#!/bin/sh
+
+echo "Custom init: switching to BusyBox init"
+if [ -z "$INITTAB" ]; then
+    echo "INITTAB is empty"
+else
+    echo "INITTAB = ${INITTAB}"
+    cp "${INITTAB}" /etc/inittab
+fi
+
+exec /sbin/init

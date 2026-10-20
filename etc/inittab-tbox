@@ -1,0 +1,15 @@
+#
+# /etc/inittab
+#
+::sysinit:rm -f /etc/init.d/ta-license
+::sysinit:rm -f /etc/init.d/rpcd
+::sysinit:rm -f /etc/init.d/tui_service
+::sysinit:rm -f /etc/init.d/udhcpc
+::sysinit:rm -f /etc/init.d/attestd
+::sysinit:cp /etc/network/interfaces.tbox /etc/network/interfaces
+::sysinit:cp /etc/hostname.tbox /etc/hostname
+::sysinit:/etc/init.d/rc.init
+hvc0::askfirst:/bin/sh -sc ". /etc/profile"
+::ctrlaltdel:/sbin/poweroff
+::shutdown:/etc/init.d/rc.shutdown
+::restart:/sbin/init

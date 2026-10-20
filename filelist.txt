@@ -1,6 +1,6 @@
 dir /bin 755 0 0
 file /bin/busybox stage/bin/busybox 755 0 0
-slink /init bin/busybox 755 0 0
+file /init init 755 0 0
 dir /sbin 755 0 0
 dir /usr 755 0 0
 dir /usr/bin 755 0 0
@@ -34,6 +34,7 @@ slink /etc/rc.d/S01_splash /etc/init.d/splash 755 0 0
 slink /etc/rc.d/S08_ledflash /etc/init.d/ledflash 755 0 0
 dir /etc/network 755 0 0
 file /etc/network/interfaces etc/network/interfaces 644 0 0
+file /etc/network/interfaces.tbox etc/network/interfaces.tbox 644 0 0
 dir /etc/network/if-up.d 755 0 0
 dir /etc/network/if-down.d 755 0 0
 dir /etc/network/if-pre-up.d 755 0 0
@@ -41,8 +42,10 @@ dir /etc/network/if-post-down.d 755 0 0
 file /etc/environment etc/environment 644 0 0
 file /etc/passwd etc/passwd 644 0 0
 file /etc/hostname etc/hostname 644 0 0
+file /etc/hostname.tbox etc/hostname.tbox 644 0 0
 file /etc/protocols etc/protocols 644 0 0
 file /etc/inittab etc/inittab 644 0 0
+file /etc/inittab.tbox etc/inittab.tbox 644 0 0
 file /etc/mdev.conf etc/mdev.conf 644 0 0
 file /etc/group etc/group 644 0 0
 file /etc/gshadow etc/gshadow 644 0 0
